@@ -51,7 +51,8 @@ contract Quiz{
     
     function betToPlay(uint quizId) public payable {
         Quiz_item memory quiz = quizs[quizId];
-        uint256 amount = msg.value; //송금한 wei의 수량
+	uint index = quizId - 1;
+        uint betAmount = msg.value; //송금한 wei의 수량
         require(betAmount >= quiz.min_bet);
         require(betAmount <= quiz.max_bet);
         bets[index][msg.sender] += betAmount;
@@ -60,21 +61,22 @@ contract Quiz{
 
     function solveQuiz(uint quizId, string memory ans) public returns (bool) {
         Quiz_item memory quiz = quizs[quizId];
-        uint index = quildId - 1;//index semantics
-        if(keccak256(bytes(quiz.answer)) == keccak256(bytes(ans!))){
-           balances[msg.sender] += bets[index][msg.sender]
-           return true; 
+        uint index = quizId - 1;//index semantics
+        if(keccak256(bytes(quiz.answer)) == keccak256(bytes(ans))){
+           balances[msg.sender] += bets[index][msg.sender]*2;
+           return true;
         }
+        
         else{
-           bets[index][msg.sender] = 0;
            vault_balance += bets[index][msg.sender];
+	   bets[index][msg.sender] = 0;
            return false;
         }    
     }
 
     function claim() public {
-        uint256 balance = balances[msg.sender];
-        balances[msg.sender] = 0;
+        uint256 amount = balances[msg.sender];
+	balances[msg.sender] = 0;
         //vault_balance -= amount;
         payable(msg.sender).transfer(amount);
     }
